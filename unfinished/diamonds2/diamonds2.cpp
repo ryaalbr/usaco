@@ -3,62 +3,62 @@
 
 using namespace std;
 int diamonds[50000] = { 0 };
-int diamondssum[50000] = { 0 };
+int uniquediamonds[50000] = { 0 };
+int diamondsink[50000] = { 0 };
 int smallD[50000] = { 0 };
 
 int main()
 {
-	int N, K, num1, num2, bestnum1, bestnum2, totalnum, besttotalnum, ind;
+	int N, K, num1, num2, bestnum1, bestnum2, totalnum, besttotalnum, ind, temp, temp2, temp3, uniqueN;
 	cin >> N >> K;
 	for (int i = 0; i < N; i++) {
-		cin >> diamonds[i];
+		cin >> diamonds[i]; // read diamonds
 	}
-	sort(diamonds, diamonds + N);
-	for (int i = 0; i < N; i++) {
+
+	sort(diamonds, diamonds + N); // sort diamonds
+	temp = 0;
+	for (int i = 0; i < N; i++) { // create unique diamonds
+		if (i > 0 && diamonds[i - 1] != diamonds[i]) {
+			uniquediamonds[i - temp] = diamonds[i];
+		}
 		if (i == 0) {
-			diamondssum[0] = diamonds[i];
+			uniquediamonds[i] = diamonds[i];
 		}
-		else {
-			diamondssum[i] = diamondssum[i - 1] + diamonds[i];
+		if (i > 0 && diamonds[i - 1] == diamonds[i]) {
+			temp++;
 		}
 	}
+
+	uniqueN = N - temp; // # of unique diamonds
+
+	temp3 = 0; 
+	for (int i = 0; i < N; i++) { // create diamond in k for unique diamonds
+		if (diamonds[i] > uniquediamonds[temp3]) {
+			temp3++;
+		}
+		temp2 = i;
+		diamondsink[temp3] = 0;
+		while (diamonds[temp2] + K >= diamonds[i]) {
+			diamondsink[temp3]++;
+			temp2--;
+			if (temp2 == -1) {
+				break;
+			}
+		}
+	}
+
 	besttotalnum = 0;
-	
-	for (int i = 0; i <= N; i++) {
-		bestnum1 = 0;
-		for (int j = 0; j < i; j++) {
-			num1 = 0;
-			for (int l = j; l < i; l++) {
-				if (diamonds[l] <= diamonds[j] + K) {
-					num1++;
-				}
-				else {
-					break;
+
+	for (int i = 0; i < uniqueN; i++) { // calculate besttotalnum
+		for (int j = 0; j < uniqueN; j++) {
+			if (uniquediamonds[j] - K > uniquediamonds[i]) {
+				totalnum = diamondsink[j] + diamondsink[i];
+				if (besttotalnum < totalnum) {
+					besttotalnum = totalnum;
 				}
 			}
-			if (num1 > bestnum1) {
-				bestnum1 = num1;
-			}
-		}
-		bestnum2 = 0;
-		for (int j = i; j <= N; j++) {
-			num2 = 0;
-			for (int l = j; l < N; l++) {
-				if (diamonds[l] <= diamonds[j] + K) {
-					num2++;
-				}
-				else {
-					break;
-				}
-			}
-			if (num2 > bestnum2) {
-				bestnum2 = num2;
-			}
-		}
-		totalnum = bestnum1 + bestnum2;
-		if (totalnum > besttotalnum) {
-			besttotalnum = totalnum;
 		}
 	}
+
 	cout << besttotalnum;
 }
