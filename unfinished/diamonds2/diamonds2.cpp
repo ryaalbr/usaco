@@ -3,62 +3,45 @@
 
 using namespace std;
 int diamonds[50000] = { 0 };
-int uniquediamonds[50000] = { 0 };
-int diamondsink[50000] = { 0 };
 int smallD[50000] = { 0 };
+int bigD[50000] = { 0 };
 
 int main()
 {
-	int N, K, num1, num2, bestnum1, bestnum2, totalnum, besttotalnum, ind, temp, temp2, temp3, uniqueN;
+	int N, K, answer, ind1, ind2;
 	cin >> N >> K;
 	for (int i = 0; i < N; i++) {
 		cin >> diamonds[i]; // read diamonds
 	}
-
+	answer = 0;
 	sort(diamonds, diamonds + N); // sort diamonds
-	temp = 0;
-	for (int i = 0; i < N; i++) { // create unique diamonds
-		if (i > 0 && diamonds[i - 1] != diamonds[i]) {
-			uniquediamonds[i - temp] = diamonds[i];
+	ind1 = 0;
+	for (int i = 0; i < N; i++) {
+		while (diamonds[i] - diamonds[ind1] > K) {
+			ind1++;
 		}
-		if (i == 0) {
-			uniquediamonds[i] = diamonds[i];
-		}
-		if (i > 0 && diamonds[i - 1] == diamonds[i]) {
-			temp++;
+		smallD[i] = i - ind1 + 1;
+		if (i > 0) {
+			smallD[i] = max(smallD[i], smallD[i - 1]);
 		}
 	}
 
-	uniqueN = N - temp; // # of unique diamonds
-
-	temp3 = 0; 
-	for (int i = 0; i < N; i++) { // create diamond in k for unique diamonds
-		if (diamonds[i] > uniquediamonds[temp3]) {
-			temp3++;
-		}
-		temp2 = i;
-		diamondsink[temp3] = 0;
-		while (diamonds[temp2] + K >= diamonds[i]) {
-			diamondsink[temp3]++;
-			temp2--;
-			if (temp2 == -1) {
-				break;
+	ind2 = N - 1;
+	for (int i = N - 1; i >= 0; i--) {
+		bigD[i] = 0;
+		if (i < N - 1) {
+			while (diamonds[ind2] - diamonds[i + 1] > K) {
+				ind2--;
 			}
+			bigD[i] = ind2 - i;
+			bigD[i] = max(bigD[i], bigD[i - 1]);
 		}
 	}
 
-	besttotalnum = 0;
-
-	for (int i = 0; i < uniqueN; i++) { // calculate besttotalnum
-		for (int j = 0; j < uniqueN; j++) {
-			if (uniquediamonds[j] - K > uniquediamonds[i]) {
-				totalnum = diamondsink[j] + diamondsink[i];
-				if (besttotalnum < totalnum) {
-					besttotalnum = totalnum;
-				}
-			}
+	for (int i = 0; i < N; i++) {
+		if (smallD[i] + bigD[i] > answer) {
+			answer = smallD[i] + bigD[i];
 		}
 	}
-
-	cout << besttotalnum;
+	cout << answer;
 }
